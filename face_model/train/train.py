@@ -138,7 +138,7 @@ def predict_and_render_radiance(
         white_background=getattr(options.nerf, mode).white_background,
         background_prior=background_prior
     )
-
+      
     rgb_fine, disp_fine, acc_fine = None, None, None
     if getattr(options.nerf, mode).num_fine > 0:
         # rgb_map_0, disp_map_0, acc_map_0 = rgb_map, disp_map, acc_map
