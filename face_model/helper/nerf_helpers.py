@@ -51,6 +51,7 @@ def cumprod_exclusive(tensor: torch.Tensor) -> torch.Tensor:
     return cumprod
 
 
+
 def get_ray_bundle(
     height: int, width: int, intrinsics , tform_cam2world: torch.Tensor, center = [0.5,0.5]
 ):
@@ -310,7 +311,7 @@ def sample_pdf(bins, weights, num_samples, det=False):
         u = torch.rand(list(cdf.shape[:-1]) + [num_samples]).to(weights)
 
     # Invert CDF
-    inds = torchsearchsorted.searchsorted(
+    inds = torch.searchsorted(
         cdf.contiguous(), u.contiguous(), side="right"
     )
     below = torch.max(torch.zeros_like(inds), inds - 1)
@@ -357,7 +358,6 @@ def sample_pdf_2(bins, weights, num_samples, det=False):
     # Invert CDF
     u = u.contiguous()
     cdf = cdf.contiguous()
-    #inds = torchsearchsorted.searchsorted(cdf, u, side="right")
     inds = torch.searchsorted(cdf.detach(), u, right=True)
     below = torch.max(torch.zeros_like(inds - 1), inds - 1)
     above = torch.min((cdf.shape[-1] - 1) * torch.ones_like(inds), inds)

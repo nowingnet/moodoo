@@ -34,7 +34,7 @@ class FlameDataSet(Dataset, ABC):
         return tform
 
 
-    def pose_spherical(self, theta, phi, radius):
+    def pose_spherical(self,theta, phi, radius):
         c2w = self.translate_by_t_along_z(radius)
         c2w = self.rotate_by_phi_along_x(phi / 180.0 * np.pi) @ c2w
         c2w = self.rotate_by_theta_along_y(theta / 180 * np.pi) @ c2w
@@ -69,6 +69,8 @@ class FlameDataSet(Dataset, ABC):
                 skip = 1
             else:
                 skip = testskip
+            if debug:
+                skip = 100
 
             for frame in meta["frames"][::skip]:
                 fname = os.path.join(basedir, frame["file_path"] + ".png")
@@ -76,9 +78,6 @@ class FlameDataSet(Dataset, ABC):
                 if load_frontal_faces:
                     fname = os.path.join(basedir, frame["file_path"] + "_frontal" + ".png")
                     frontal_imgs.append(imageio.imread(fname))
-                # import matplotlib.pyplot as plt
-                # plt.imshow(imgs[-1])
-                # plt.show()
 
                 poses.append(np.array(frame["transform_matrix"]))
                 expressions.append(np.array(frame["expression"]))
@@ -115,17 +114,11 @@ class FlameDataSet(Dataset, ABC):
         camera_angle_x = float(meta["camera_angle_x"])
         focal = 0.5 * W / np.tan(0.5 * camera_angle_x)
 
-        #focals = (meta["focals"])
         intrinsics = meta["intrinsics"] if meta["intrinsics"] else None
         if meta["intrinsics"]:
             intrinsics = np.array(meta["intrinsics"])
         else:
             intrinsics = np.array([focal, focal, 0.5, 0.5]) # fx fy cx cy
-        # if type(focals) is list:
-        #     focal = np.array([W*focals[0], H*focals[1]]) # fx fy  - x is width
-        # else:
-        #     focal = np.array([focal, focal])
-
 
         render_poses = torch.stack(
             [
@@ -134,32 +127,6 @@ class FlameDataSet(Dataset, ABC):
             ],
             0,
         )
-
-        # In debug mode, return extremely tiny images
-        if debug:
-            H = H // 32
-            W = W // 32
-            #focal = focal / 32.0
-            intrinsics[:2] = intrinsics[:2] / 32.0
-            imgs = [
-                torch.from_numpy(
-                    cv2.resize(imgs[i], dsize=(25, 25), interpolation=cv2.INTER_AREA)
-                )
-                for i in range(imgs.shape[0])
-            ]
-            imgs = torch.stack(imgs, 0)
-            if frontal_imgs:
-                frontal_imgs = [
-                    torch.from_numpy(
-                        cv2.resize(frontal_imgs[i], dsize=(25, 25), interpolation=cv2.INTER_AREA)
-                    )
-                    for i in range(frontal_imgs.shape[0])
-                ]
-                frontal_imgs = torch.stack(frontal_imgs, 0)
-
-            poses = torch.from_numpy(poses)
-
-            return imgs, poses, render_poses, [H, W, intrinsics], i_split, frontal_imgs
 
 
         if half_res:
