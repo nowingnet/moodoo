@@ -1,8 +1,11 @@
+import os
+import sys
 import torch
-from helper.nerf_helpers import get_minibatches
-from helper.nerf_helpers import volume_render_radiance_field, ndc_rays
+from helper.nerf_helpers import get_minibatches, ndc_rays
+from models.nerf import volume_render_radiance_field
 
-sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
+#sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
+
 from helper import nerf_helpers
 
 

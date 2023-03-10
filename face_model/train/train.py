@@ -27,7 +27,7 @@ from helper import nerf_helpers
 # NerFACEModel
 from models import nerface_model
 
-from . import train_part
+#import train_part
 from loss import valuation_metrics
 
 

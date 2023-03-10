@@ -1,11 +1,13 @@
 # start.py
+import os
 import sys
 
-sys.path.append('/mnt/disks/sdb/aiffel/moodoo/face_model/train')
-
-import train
-
 if __name__ == "__main__":
-    config = '../data/person_1/person_1_config.yml'
+    project_path = '/mnt/disks/sdb/aiffel/moodoo/face_model/'
+    os.chdir(project_path)
+    sys.path.append(os.getcwd())
+    from train import train
+
+    config = 'data/person_1/person_1_config.yml'
     load_checkpoint = ''
-    sys.exit(train(config, load_checkpoint, debug=True))
+    train.train(config, load_checkpoint, debug=True)    
