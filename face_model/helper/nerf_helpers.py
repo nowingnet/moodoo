@@ -4,19 +4,6 @@ from typing import Optional
 import pytorch3d.transforms
 import torch
 from tqdm import tqdm
-import torchsearchsorted
-
-
-def img2mse(img_src, img_tgt):
-    return torch.nn.functional.mse_loss(img_src, img_tgt)
-
-
-def mse2psnr(mse):
-    # For numerical stability, avoid a zero mse loss.
-    if mse == 0:
-        mse = 1e-5
-    return -10.0 * math.log10(mse)
-
 
 def get_minibatches(inputs: torch.Tensor, chunksize: Optional[int] = 1024 * 8):
     r"""Takes a huge tensor (ray "bundle") and splits it into a list of minibatches.
@@ -27,8 +14,7 @@ def get_minibatches(inputs: torch.Tensor, chunksize: Optional[int] = 1024 * 8):
 
 
 def meshgrid_xy(
-    tensor1: torch.Tensor, tensor2: torch.Tensor
-) -> (torch.Tensor, torch.Tensor):
+    tensor1: torch.Tensor, tensor2: torch.Tensor) -> (torch.Tensor, torch.Tensor):
     """Mimick np.meshgrid(..., indexing="xy") in pytorch. torch.meshgrid only allows "ij" indexing.
     (If you're unsure what this means, safely skip trying to understand this, and run a tiny example!)
 
@@ -192,6 +178,7 @@ def get_ray_bundle_axis_angles(
 
 
 
+# nerface 9
 def positional_encoding(
     tensor, num_encoding_functions=6, include_input=True, log_sampling=True
 ) -> torch.Tensor:
@@ -239,6 +226,7 @@ def positional_encoding(
         return torch.cat(encoding, dim=-1)
 
 
+# nerface 9
 def get_embedding_function(
     num_encoding_functions=6, include_input=True, log_sampling=True
 ):

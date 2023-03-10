@@ -1,17 +1,24 @@
+# 6
+import os
+import cv2
 from abc import ABC
 from torch.utils.data import Dataset
+import numpy as np
+import json
+import imageio
+import torch
 
 class FlameDataSet(Dataset, ABC):
     def __init__(self):
         self.name = "BaseDataset"
         
-    def translate_by_t_along_z(t):
+    def translate_by_t_along_z(self, t):
         tform = np.eye(4).astype(np.float32)
         tform[2][3] = t
         return tform
 
 
-    def rotate_by_phi_along_x(phi):
+    def rotate_by_phi_along_x(self, phi):
         tform = np.eye(4).astype(np.float32)
         tform[1, 1] = tform[2, 2] = np.cos(phi)
         tform[1, 2] = -np.sin(phi)
@@ -19,7 +26,7 @@ class FlameDataSet(Dataset, ABC):
         return tform
 
 
-    def rotate_by_theta_along_y(theta):
+    def rotate_by_theta_along_y(self, theta):
         tform = np.eye(4).astype(np.float32)
         tform[0, 0] = tform[2, 2] = np.cos(theta)
         tform[0, 2] = -np.sin(theta)
@@ -27,15 +34,15 @@ class FlameDataSet(Dataset, ABC):
         return tform
 
 
-    def pose_spherical(theta, phi, radius):
-        c2w = translate_by_t_along_z(radius)
-        c2w = rotate_by_phi_along_x(phi / 180.0 * np.pi) @ c2w
-        c2w = rotate_by_theta_along_y(theta / 180 * np.pi) @ c2w
+    def pose_spherical(self, theta, phi, radius):
+        c2w = self.translate_by_t_along_z(radius)
+        c2w = self.rotate_by_phi_along_x(phi / 180.0 * np.pi) @ c2w
+        c2w = self.rotate_by_theta_along_y(theta / 180 * np.pi) @ c2w
         c2w = np.array([[-1, 0, 0, 0], [0, 0, 1, 0], [0, 1, 0, 0], [0, 0, 0, 1]]) @ c2w
         return c2w
 
 
-    def load_flame_data(basedir, half_res=False, testskip=1, debug=False, expressions=True,load_frontal_faces=False, load_bbox=True, test=False):
+    def load_flame_data(self, basedir, half_res=False, testskip=1, debug=False, expressions=True,load_frontal_faces=False, load_bbox=True, test=False):
         print("starting data loading")
         splits = ["train", "val", "test"]
         if test:
@@ -122,7 +129,7 @@ class FlameDataSet(Dataset, ABC):
 
         render_poses = torch.stack(
             [
-                torch.from_numpy(pose_spherical(angle, -30.0, 4.0))
+                torch.from_numpy(self.pose_spherical(angle, -30.0, 4.0))
                 for angle in np.linspace(-180, 180, 40 + 1)[:-1]
             ],
             0,
