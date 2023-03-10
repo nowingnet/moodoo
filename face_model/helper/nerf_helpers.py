@@ -3,6 +3,7 @@ from typing import Optional
 #from kornia.geometry import conversions
 import pytorch3d.transforms
 import torch
+from torchsearchsorted import searchsorted
 from tqdm import tqdm
 
 def get_minibatches(inputs: torch.Tensor, chunksize: Optional[int] = 1024 * 8):
@@ -310,8 +311,9 @@ def sample_pdf(bins, weights, num_samples, det=False):
     else:
         u = torch.rand(list(cdf.shape[:-1]) + [num_samples]).to(weights)
 
+    print(cdf.contiguous())
     # Invert CDF
-    inds = torch.searchsorted(
+    inds = searchsorted(
         cdf.contiguous(), u.contiguous(), side="right"
     )
     below = torch.max(torch.zeros_like(inds), inds - 1)
@@ -358,7 +360,7 @@ def sample_pdf_2(bins, weights, num_samples, det=False):
     # Invert CDF
     u = u.contiguous()
     cdf = cdf.contiguous()
-    inds = torch.searchsorted(cdf.detach(), u, right=True)
+    inds = searchsorted(cdf.detach(), u, right=True)
     below = torch.max(torch.zeros_like(inds - 1), inds - 1)
     above = torch.min((cdf.shape[-1] - 1) * torch.ones_like(inds), inds)
     inds_g = torch.stack((below, above), dim=-1)  # (batchsize, num_samples, 2)
