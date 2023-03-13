@@ -8,7 +8,7 @@
             "name": "Python: Current File",
             "type": "python",
             "request": "launch",
-            "program": "/mnt/disks/sdb/aiffel/moodoo/face_model/train/train.py",
+            "program": "/mnt/disks/sdb/aiffel/moodoo/face_model/test/run.py",
             "console": "integratedTerminal",
             "justMyCode": true
         }
